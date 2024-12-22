@@ -17,4 +17,4 @@ use App\Http\Controllers\ProductController;
 Route::get('/', [ProductController::class, 'index'])->name('products.index');
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
 Route::post('/products/{id}/edit', [ProductController::class, 'update'])->name('products.update');
-
+Route::delete('/products/{id}', [ProductController::class, 'destroy'])->name('products.destroy');

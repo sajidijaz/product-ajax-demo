@@ -86,9 +86,6 @@ class ProductController extends Controller
         Storage::put($this->jsonFileName, json_encode($data, JSON_PRETTY_PRINT));
     }
 
-    /**
-     * Regenerate the entire JSON file from DB (after update).
-     */
     private function regenerateJsonFromDB()
     {
         $allProducts = Product::orderBy('datetime_submitted', 'desc')->get();
@@ -103,7 +100,28 @@ class ProductController extends Controller
                 'datetime_submitted'=> $p->datetime_submitted,
             ];
         }
-
         Storage::put($this->jsonFileName, json_encode($data, JSON_PRETTY_PRINT));
     }
+
+    public function destroy($id)
+    {
+        // Find product in DB
+        $product = Product::findOrFail($id);
+
+        // Delete from DB
+        $product->delete();
+
+        // Regenerate JSON from DB
+        $this->regenerateJsonFromDB();
+
+        // Return the updated product list
+        $allProducts = Product::orderBy('datetime_submitted', 'desc')->get();
+
+        return response()->json([
+                                    'status'  => 'success',
+                                    'message' => 'Product deleted successfully.',
+                                    'data'    => $allProducts
+                                ], 200);
+    }
+
 }

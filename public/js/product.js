@@ -1,4 +1,10 @@
 $(document).ready(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
     $('#productForm').submit(function (e) {
         e.preventDefault();
         $.ajax({
@@ -24,6 +30,12 @@ $(document).ready(function () {
                                     data-quantity="${product.quantity_in_stock}"
                                     data-price="${product.price_per_item}">
                                     Edit
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-danger btn-delete"
+                                    data-id="${product.id}">
+                                    Delete
                                 </button>
                             </td>
                         </tr>
@@ -120,4 +132,74 @@ $(document).ready(function () {
             }
         });
     });
+
+    $(document).on('click', '.btn-delete', function () {
+        const id = $(this).data('id');
+
+        if (!confirm("Are you sure you want to delete this product?")) {
+            return;
+        }
+
+        $.ajax({
+            url: '/products/' + id,
+            method: 'DELETE',
+            data: {
+                _token: $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (response) {
+                if (response.status === 'success') {
+                    let products = response.data;
+                    $('#productTableBody').empty();
+
+                    let sumTotalValues = 0;
+                    let rowHtml = '';
+
+                    products.forEach(function (prod) {
+                        let tv = prod.quantity_in_stock * prod.price_per_item;
+                        sumTotalValues += tv;
+
+                        rowHtml += `
+                            <tr data-id="${prod.id}">
+                                <td>${prod.product_name}</td>
+                                <td>${prod.quantity_in_stock}</td>
+                                <td>${prod.price_per_item}</td>
+                                <td>${prod.datetime_submitted}</td>
+                                <td>${tv}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning btn-edit"
+                                        data-id="${prod.id}"
+                                        data-name="${prod.product_name}"
+                                        data-quantity="${prod.quantity_in_stock}"
+                                        data-price="${prod.price_per_item}">
+                                        Edit
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger btn-delete"
+                                        data-id="${prod.id}">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    rowHtml += `
+                        <tr class="fw-bold">
+                            <td colspan="4" class="text-end">Total Sum:</td>
+                            <td id="sumTotalValues">${sumTotalValues.toFixed(2)}</td>
+                            <td colspan="2"></td>
+                        </tr>
+                    `;
+
+                    $('#productTableBody').append(rowHtml);
+                }
+            },
+            error: function (err) {
+                alert('Error deleting product. Check console.');
+                console.log(err);
+            }
+        });
+    });
+
 });

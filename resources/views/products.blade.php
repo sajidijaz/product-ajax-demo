@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Laravel AJAX Product Demo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
@@ -49,6 +50,7 @@
                     <th>Datetime Submitted</th>
                     <th>Total Value</th>
                     <th>Edit</th>
+                    <th>Delete</th>
                 </tr>
                 </thead>
                 <tbody id="productTableBody">
@@ -73,6 +75,12 @@
                                     data-quantity="{{ $product->quantity_in_stock }}"
                                     data-price="{{ $product->price_per_item }}">
                                 Edit
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-danger btn-delete"
+                                    data-id="{{ $product->id }}">
+                                Delete
                             </button>
                         </td>
                     </tr>
